@@ -1,5 +1,6 @@
 package com.example.mymapa
 
+import CameraScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -30,7 +31,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -72,7 +75,7 @@ fun MyTopAppBar(
 ) {
     TopAppBar(
         title = { Text(text = " El fokin mapa",
-            fontFamily = FontFamily.SansSerif,
+            fontFamily = titleFont,
             fontSize = 36.sp)},
         colors= TopAppBarDefaults.topAppBarColors(
             containerColor = Color.Black,
@@ -99,11 +102,11 @@ fun MyDrawer(myViewModel: MyViewModel){
         ModalDrawerSheet {
             Text(text="Menu", modifier = Modifier.padding(16.dp))
             Divider()
-            NavigationDrawerItem(label = { Text(text = "Mapa")},
+            NavigationDrawerItem(label = { Text(text = "Mapa", fontFamily = nameFont)},
                 selected = false,
                 onClick = {navController.navigate(Routes.MapScreen.route)
                     scope.launch { state.close() } })
-            NavigationDrawerItem(label = { Text(text = "Lista de marcadores")},
+            NavigationDrawerItem(label = { Text(text = "Lista de marcadores",fontFamily = nameFont)},
                 selected = false,
                 onClick = {navController.navigate(Routes.ListaMarcadores.route)
                     scope.launch { state.close() } })
@@ -134,6 +137,8 @@ fun MyScaffold(
             {
                 composable(Routes.MapScreen.route) { MapScreen(navController,myViewModel) }
                 composable(Routes.ListaMarcadores.route) { ListaMarcadores(navController,myViewModel) }
+                composable(Routes.DetallMarcador.route) { DetallMarcador(navController,myViewModel) }
+                composable(Routes.CameraScreen.route) { CameraScreen(navController,myViewModel) }
 
             }
         }
@@ -145,3 +150,9 @@ fun AbrirMenu(scope: CoroutineScope, state: DrawerState){
         Icon(imageVector = Icons.Filled.Menu,contentDescription = "menu" )
     }
 }
+val nameFont = FontFamily(
+    Font(R.font.go3v2, FontWeight.Bold)
+)
+val titleFont = FontFamily(
+    Font(R.font.poke, FontWeight.Bold)
+)
