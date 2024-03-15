@@ -27,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -52,84 +51,33 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @SuppressLint("MutableCollectionMutableState", "MissingPermission")
 @Composable
-fun MapScreen(navController: NavController,myViewModel: MyViewModel){
-    val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
-    var nuevaMarca by remember { mutableStateOf(LatLng(0.0,0.0)) }
+fun MapAllMarkersScreen(navController: NavController,myViewModel: MyViewModel){
     val marcaActual:Marca by myViewModel.marcaActual.observeAsState(Marca("ITB",LatLng(41.4534265,2.1837151),"Inst Tecnologic de Bcn"))
-    var cameraPositionState= rememberCameraPositionState{position = CameraPosition.fromLatLngZoom(marcaActual.ubicacion,10f) }
-    var showBottomSheet by remember { mutableStateOf(false) }
+    val cameraPositionState= rememberCameraPositionState{position = CameraPosition.fromLatLngZoom(marcaActual.ubicacion,10f) }
     val context= LocalContext.current
     val fusedLocationProviderClient=remember{LocationServices.getFusedLocationProviderClient(context)}
     var lastKnownLocation by remember{ mutableStateOf<Location?>(null)}
     var deviceLatIng by remember { mutableStateOf(LatLng(0.0,0.0)) }
     val locationResult=fusedLocationProviderClient.getCurrentLocation(100,null)
-    var inicioPantalla by remember{ mutableStateOf(true) }
-    if (inicioPantalla){
-        locationResult.addOnCompleteListener(context as MainActivity){task->
-            if(task.isSuccessful){
-                lastKnownLocation=task.result
-                deviceLatIng= LatLng(lastKnownLocation!!.latitude,lastKnownLocation!!.longitude)
-                cameraPositionState.position= CameraPosition.fromLatLngZoom(deviceLatIng,15f)
-                inicioPantalla=false
-            }
+    locationResult.addOnCompleteListener(context as MainActivity){task->
+        if(task.isSuccessful){
+            lastKnownLocation=task.result
+            deviceLatIng= LatLng(lastKnownLocation!!.latitude,lastKnownLocation!!.longitude)
+            cameraPositionState.position= CameraPosition.fromLatLngZoom(deviceLatIng,15f)
         }
     }
-
-
     Column(modifier = Modifier.fillMaxSize()) {
        GoogleMap(modifier = Modifier.fillMaxSize(),cameraPositionState=cameraPositionState,
-           onMapClick = {showBottomSheet=true;nuevaMarca=it},
            properties = MapProperties(isBuildingEnabled = true, isMyLocationEnabled = true)
        ){
-           Marker(state = MarkerState(position = marcaActual.ubicacion),
-               title = marcaActual.nombre,
-               snippet = "Marker at ${marcaActual.nombre}")
-       }
-        if (showBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = {
-                    showBottomSheet = false
-                },
-                sheetState = sheetState
-            ) {
-                var nombre by remember{ mutableStateOf("")}
-                var descripcion by remember{ mutableStateOf("")}
-                Column(Modifier.padding(10.dp)) {
-                    TextField(
-                        value = nombre,
-                        onValueChange = { nombre = it },
-                        label = { Text("Name") },
-                        singleLine = true,
-                        placeholder = { Text(text = "New Ubication")}
-                    )
-                    Spacer(modifier = Modifier.height(30.dp))
-                    TextField(
-                        value = descripcion,
-                        onValueChange = { descripcion = it },
-                        label = { Text("Description") },
-                        singleLine = true,
-                        placeholder = { Text(text = "New Ubication")}
-                    )
-                    Spacer(modifier = Modifier.height(30.dp))
-                    Button(onClick = {
-                        myViewModel.addTOList(Marca(nombre,nuevaMarca,descripcion))
-                        scope.launch { sheetState.hide() }.invokeOnCompletion {
-                            if (!sheetState.isVisible) {
-                                showBottomSheet = false
-                            }
-                        }
-                        myViewModel.changeActual(Marca(nombre,nuevaMarca,descripcion))
-                    }) {
-                        Text("Add")
-                    }
-                }
-
-            }
+        for (marca in myViewModel.listaMarcas.value!!){
+            Marker(state = MarkerState(position = marca.ubicacion),
+                title = marca.nombre,
+                snippet = "Marker at ${marca.nombre}")
         }
-    }
+       }
+   }
 }
 

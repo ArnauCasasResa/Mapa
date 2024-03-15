@@ -1,6 +1,7 @@
 import android.Manifest
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -98,7 +99,19 @@ private fun takePhoto(context: Context, controller: LifecycleCameraController, o
         object : ImageCapture.OnImageCapturedCallback() {
             override fun onCaptureSuccess(image: ImageProxy) {
                 super.onCaptureSuccess(image)
-                onPhotoTaken(image.toBitmap())
+                val matri = Matrix().apply{
+                    postRotate(image.imageInfo.rotationDegrees.toFloat())
+                }
+                val rotatedBitmap = Bitmap.createBitmap(
+                    image.toBitmap(),
+                    0,
+                    0,
+                    image.width,
+                    image.height,
+                    matri,
+                    true
+                )
+                onPhotoTaken(rotatedBitmap)
             }
             override fun onError(exception: ImageCaptureException) {
                 super.onError(exception)

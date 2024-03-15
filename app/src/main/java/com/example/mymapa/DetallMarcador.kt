@@ -38,6 +38,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -46,9 +47,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogWindowProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.google.android.gms.maps.model.CameraPosition
@@ -61,9 +65,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetallMarcador(navController: NavController,myViewModel: MyViewModel){
-    val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
-    var showBottomSheet by remember { mutableStateOf(false) }
+    val show:Boolean by myViewModel.show.observeAsState(false)
     val marca=myViewModel.marcaActual.value
     val cameraPositionState= rememberCameraPositionState{
         if (marca != null) {
@@ -96,9 +98,9 @@ fun DetallMarcador(navController: NavController,myViewModel: MyViewModel){
                         .background(Color.Gray, RoundedCornerShape(10.dp))){
                         LazyRow {
                             items(marca.imagenes) {
-                                CartaImagen(it, navController, myViewModel)
+                                CartaImagen(it, myViewModel)
                             }
-                            item {
+                            item{
                                 CartaAdd(navController)
                             }
                         }
@@ -112,6 +114,8 @@ fun DetallMarcador(navController: NavController,myViewModel: MyViewModel){
                         }
                     }
                 }
+                 MyDialog(show,{ myViewModel.turnFalse() },myViewModel)
+
             }
 
         }
@@ -124,20 +128,18 @@ fun DetallMarcador(navController: NavController,myViewModel: MyViewModel){
 
 
 @Composable
-fun CartaImagen(image: Bitmap, navController: NavController,myViewModel: MyViewModel) {
+fun CartaImagen(image: Bitmap,myViewModel: MyViewModel) {
     Card(
         border = BorderStroke(2.dp, Color.Transparent),
         modifier = Modifier
             .padding(8.dp)
             .size(100.dp)
-            .clickable {//TODO
-            }
-    ) {
+            .clickable { myViewModel.changeImagenActual(image);myViewModel.turnTrue() })
+    {
         Image(bitmap = image.asImageBitmap(), contentDescription = "Imagen de la marca")
-
     }
-}
 
+}
 
 @Composable
 fun CartaAdd(navController: NavController) {
@@ -146,13 +148,26 @@ fun CartaAdd(navController: NavController) {
         modifier = Modifier
             .padding(8.dp)
             .size(100.dp)
-            .clickable { navController.navigate(Routes.CameraScreen.route) }
-    ) {
+            .clickable {navController.navigate(Routes.CameraScreen.route)}) {
         Box(Modifier.fillMaxSize()) {
             Icon(imageVector = Icons.Default.Add,contentDescription = "Añadir imagen",
                 modifier = Modifier.align(Alignment.Center))
         }
-
     }
+}
 
+@Composable
+fun MyDialog(show: Boolean, onDismiss: () -> Unit,myViewModel: MyViewModel){
+    if(show){
+        Dialog(onDismissRequest = { onDismiss() }) {
+            (LocalView.current.parent as DialogWindowProvider).window.setDimAmount(0.8f)
+            Column(
+                Modifier
+                    .background(Color.White)
+
+                    .fillMaxWidth()) {
+                myViewModel.imagenActual.value?.let { Image(bitmap = it.asImageBitmap(), contentDescription = "Imagen de la marca") }
+            }
+        }
+    }
 }
