@@ -39,4 +39,8 @@ class MyViewModel:ViewModel() {
     fun turnTrue(){
         _show.value=true
     }
+    fun saveChanges(nomMarca:String,descripcioMarca:String){
+        this._marcaActual.value?.nombre=nomMarca
+        this._marcaActual.value?.descripcion=descripcioMarca
+    }
 }

@@ -24,7 +24,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.Button
@@ -64,9 +63,9 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-fun DetallMarcador(navController: NavController,myViewModel: MyViewModel){
+fun EditarMarcador(navController: NavController,myViewModel: MyViewModel){
     val show:Boolean by myViewModel.show.observeAsState(false)
     val marca=myViewModel.marcaActual.value
     val cameraPositionState= rememberCameraPositionState{
@@ -90,9 +89,17 @@ fun DetallMarcador(navController: NavController,myViewModel: MyViewModel){
         }
         Column(modifier=Modifier.padding(8.dp)) {
             if (marca != null) {
+                var nombre by remember { mutableStateOf(marca.nombre) }
+                var descripcion by remember { mutableStateOf(marca.descripcion) }
                 Spacer(modifier =Modifier.height(10.dp))
-                Text(text = "Nombre: ${marca.nombre}",modifier = Modifier.padding(8.dp))
-                Text(text = "Descripcion: ${marca.descripcion}",modifier = Modifier.padding(8.dp))
+                Row {
+                    Text(text = "Nombre: ",modifier = Modifier.padding(8.dp))
+                    TextField(value = nombre, onValueChange = {newText -> nombre = newText })
+                }
+                Row {
+                    Text(text = "Descripcion: ",modifier = Modifier.padding(8.dp))
+                    TextField(value = descripcion, onValueChange = {newText -> descripcion = newText })
+                }
                 Spacer(modifier =Modifier.height(20.dp))
                 if (marca.imagenes.isNotEmpty()) {
                     Box(modifier= Modifier
@@ -102,9 +109,6 @@ fun DetallMarcador(navController: NavController,myViewModel: MyViewModel){
                             items(marca.imagenes) {
                                 CartaImagen(it, myViewModel)
                             }
-                            item{
-                                CartaAdd(navController)
-                            }
                         }
                     }
                 }else{
@@ -112,19 +116,19 @@ fun DetallMarcador(navController: NavController,myViewModel: MyViewModel){
                         horizontalAlignment = Alignment.CenterHorizontally){
                         Button(onClick = { navController.navigate(Routes.CameraScreen.route) }) {
                             Text(text = "Añadir imagen")
-
                         }
                     }
                 }
-                Column(horizontalAlignment = Alignment.CenterHorizontally){
-                    Button(onClick = { navController.navigate(Routes.EditarMarcador.route) }) {
-                        Icon(imageVector = Icons.Filled.Edit,contentDescription = "edit" )
+                Column(modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally){
+                    Button(onClick = { myViewModel.saveChanges(nombre,descripcion)
+                        navController.navigate(Routes.DetallMarcador.route) }) {
+                        Text(text = "Guardar cambios")
                     }
                 }
-
                  MyDialog(show,{ myViewModel.turnFalse() },myViewModel)
-
             }
+
         }
     }
 }
@@ -133,48 +137,3 @@ fun DetallMarcador(navController: NavController,myViewModel: MyViewModel){
 
 
 
-
-@Composable
-fun CartaImagen(image: Bitmap,myViewModel: MyViewModel) {
-    Card(
-        border = BorderStroke(2.dp, Color.Transparent),
-        modifier = Modifier
-            .padding(8.dp)
-            .size(100.dp)
-            .clickable { myViewModel.changeImagenActual(image);myViewModel.turnTrue() })
-    {
-        Image(bitmap = image.asImageBitmap(), contentDescription = "Imagen de la marca", contentScale = ContentScale.Crop)
-    }
-
-}
-
-@Composable
-fun CartaAdd(navController: NavController) {
-    Card(
-        border = BorderStroke(2.dp, Color.Transparent),
-        modifier = Modifier
-            .padding(8.dp)
-            .size(100.dp)
-            .clickable { navController.navigate(Routes.CameraScreen.route) }) {
-        Box(Modifier.fillMaxSize()) {
-            Icon(imageVector = Icons.Default.Add,contentDescription = "Añadir imagen",
-                modifier = Modifier.align(Alignment.Center))
-        }
-    }
-}
-
-@Composable
-fun MyDialog(show: Boolean, onDismiss: () -> Unit,myViewModel: MyViewModel){
-    if(show){
-        Dialog(onDismissRequest = { onDismiss() }) {
-            (LocalView.current.parent as DialogWindowProvider).window.setDimAmount(0.8f)
-            Column(
-                Modifier
-                    .background(Color.White)
-
-                    .fillMaxWidth()) {
-                myViewModel.imagenActual.value?.let { Image(bitmap = it.asImageBitmap(), contentDescription = "Imagen de la marca",contentScale = ContentScale.Crop) }
-            }
-        }
-    }
-}

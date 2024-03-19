@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "986781240779",
+    "project_id": "elite-ethos-416311",
+    "storage_bucket": "elite-ethos-416311.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:986781240779:android:2eb4b83f14605624767a4e",
+        "android_client_info": {
+          "package_name": "com.example.mymapa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPtBtSo6HVBrdlg_pZqwf9TzYAzILk6gY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

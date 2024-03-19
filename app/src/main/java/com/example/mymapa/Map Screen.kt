@@ -77,6 +77,7 @@ fun MapScreen(navController: NavController,myViewModel: MyViewModel){
                 inicioPantalla=false
             }
         }
+
     }
 
 

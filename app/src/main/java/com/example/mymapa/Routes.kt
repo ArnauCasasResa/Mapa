@@ -6,4 +6,5 @@ sealed class Routes(val route:String) {
     object DetallMarcador:Routes("detallMarcador")
     object CameraScreen:Routes("cameraScreen")
     object MapAllMarkersScreen:Routes("allMarkersMapScreen")
+    object EditarMarcador:Routes("editarMarcador")
 }

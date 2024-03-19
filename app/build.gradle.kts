@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -80,6 +81,7 @@ dependencies {
     implementation("androidx.camera:camera-extensions:1.3.2")
     implementation("androidx.compose.material:material-icons-extended:1.6.3")
     implementation("com.google.accompanist:accompanist-permissions:0.28.0")
+    implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
 }
 secrets{
     propertiesFileName="secrets.properties"

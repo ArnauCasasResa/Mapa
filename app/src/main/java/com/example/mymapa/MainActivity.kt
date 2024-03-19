@@ -172,6 +172,7 @@ fun MyScaffold(
                     composable(Routes.DetallMarcador.route) { DetallMarcador(navController,myViewModel) }
                     composable(Routes.CameraScreen.route) { CameraScreen(navController,myViewModel) }
                     composable(Routes.MapAllMarkersScreen.route) { MapAllMarkersScreen(navController,myViewModel) }
+                    composable(Routes.EditarMarcador.route) { EditarMarcador(navController,myViewModel) }
                 }
             }
 
