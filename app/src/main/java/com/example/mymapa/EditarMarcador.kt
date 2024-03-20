@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -33,6 +35,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -73,7 +76,7 @@ fun EditarMarcador(navController: NavController,myViewModel: MyViewModel){
             position = CameraPosition.fromLatLngZoom(marca.ubicacion, 15f)
         }
     }
-    Column {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         Card(modifier = Modifier
             .size(500.dp)
             .clickable {
@@ -93,12 +96,18 @@ fun EditarMarcador(navController: NavController,myViewModel: MyViewModel){
                 var descripcion by remember { mutableStateOf(marca.descripcion) }
                 Spacer(modifier =Modifier.height(10.dp))
                 Row {
-                    Text(text = "Nombre: ",modifier = Modifier.padding(8.dp))
-                    TextField(value = nombre, onValueChange = {newText -> nombre = newText })
+                    OutlinedTextField(
+                        value = nombre,
+                        onValueChange = { nombre = it },
+                        label = { Text("Nombre") }
+                    )
                 }
                 Row {
-                    Text(text = "Descripcion: ",modifier = Modifier.padding(8.dp))
-                    TextField(value = descripcion, onValueChange = {newText -> descripcion = newText })
+                    OutlinedTextField(
+                        value = descripcion,
+                        onValueChange = { descripcion = it },
+                        label = { Text("Descripcion") }
+                    )
                 }
                 Spacer(modifier =Modifier.height(20.dp))
                 if (marca.imagenes.isNotEmpty()) {
@@ -112,16 +121,17 @@ fun EditarMarcador(navController: NavController,myViewModel: MyViewModel){
                         }
                     }
                 }else{
-                    Column(modifier = Modifier.fillMaxSize(),
+                    Column(modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally){
                         Button(onClick = { navController.navigate(Routes.CameraScreen.route) }) {
                             Text(text = "Añadir imagen")
                         }
                     }
                 }
+                Spacer(modifier =Modifier.height(10.dp))
                 Column(modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally){
-                    Button(onClick = { myViewModel.saveChanges(nombre,descripcion)
+                    Button(onClick = { myViewModel.saveChanges(nombre,descripcion);myViewModel.editMarker(marca)
                         navController.navigate(Routes.DetallMarcador.route) }) {
                         Text(text = "Guardar cambios")
                     }

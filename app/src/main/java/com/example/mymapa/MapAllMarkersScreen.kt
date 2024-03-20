@@ -15,9 +15,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialogDefaults.shape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -54,6 +57,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("MutableCollectionMutableState", "MissingPermission")
 @Composable
 fun MapAllMarkersScreen(navController: NavController,myViewModel: MyViewModel){
+    myViewModel.getMarkers()
     val marcaActual:Marca by myViewModel.marcaActual.observeAsState(Marca("ITB",LatLng(41.4534265,2.1837151),"Inst Tecnologic de Bcn"))
     val cameraPositionState= rememberCameraPositionState{position = CameraPosition.fromLatLngZoom(marcaActual.ubicacion,10f) }
     val context= LocalContext.current
@@ -68,16 +72,18 @@ fun MapAllMarkersScreen(navController: NavController,myViewModel: MyViewModel){
             cameraPositionState.position= CameraPosition.fromLatLngZoom(deviceLatIng,15f)
         }
     }
-    Column(modifier = Modifier.fillMaxSize()) {
-       GoogleMap(modifier = Modifier.fillMaxSize(),cameraPositionState=cameraPositionState,
-           properties = MapProperties(isBuildingEnabled = true, isMyLocationEnabled = true)
-       ){
-        for (marca in myViewModel.listaMarcas.value!!){
-            Marker(state = MarkerState(position = marca.ubicacion),
-                title = marca.nombre,
-                snippet = "Marker at ${marca.nombre}")
+
+        Column(modifier = Modifier.fillMaxSize()) {
+            GoogleMap(modifier = Modifier.fillMaxSize(),cameraPositionState=cameraPositionState,
+                properties = MapProperties(isBuildingEnabled = true, isMyLocationEnabled = true)
+            ){
+                for (marca in myViewModel.listaMarcas.value!!){
+                    Marker(state = MarkerState(position = marca.ubicacion),
+                        title = marca.nombre,
+                        snippet = "Marker at ${marca.nombre}")
+                }
+            }
         }
-       }
-   }
+
 }
 

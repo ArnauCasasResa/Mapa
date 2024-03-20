@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -74,7 +76,7 @@ fun DetallMarcador(navController: NavController,myViewModel: MyViewModel){
             position = CameraPosition.fromLatLngZoom(marca.ubicacion, 15f)
         }
     }
-    Column {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         Card(modifier = Modifier
             .size(500.dp)
             .clickable {
@@ -90,7 +92,6 @@ fun DetallMarcador(navController: NavController,myViewModel: MyViewModel){
         }
         Column(modifier=Modifier.padding(8.dp)) {
             if (marca != null) {
-                Spacer(modifier =Modifier.height(10.dp))
                 Text(text = "Nombre: ${marca.nombre}",modifier = Modifier.padding(8.dp))
                 Text(text = "Descripcion: ${marca.descripcion}",modifier = Modifier.padding(8.dp))
                 Spacer(modifier =Modifier.height(20.dp))
@@ -108,7 +109,7 @@ fun DetallMarcador(navController: NavController,myViewModel: MyViewModel){
                         }
                     }
                 }else{
-                    Column(modifier = Modifier.fillMaxSize(),
+                    Column(modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally){
                         Button(onClick = { navController.navigate(Routes.CameraScreen.route) }) {
                             Text(text = "Añadir imagen")
@@ -116,14 +117,14 @@ fun DetallMarcador(navController: NavController,myViewModel: MyViewModel){
                         }
                     }
                 }
-                Column(horizontalAlignment = Alignment.CenterHorizontally){
+                Spacer(modifier =Modifier.height(10.dp))
+
+                Column(modifier =Modifier.fillMaxWidth(),horizontalAlignment = Alignment.End){
                     Button(onClick = { navController.navigate(Routes.EditarMarcador.route) }) {
                         Icon(imageVector = Icons.Filled.Edit,contentDescription = "edit" )
                     }
                 }
-
                  MyDialog(show,{ myViewModel.turnFalse() },myViewModel)
-
             }
         }
     }

@@ -67,17 +67,16 @@ fun MapScreen(navController: NavController,myViewModel: MyViewModel){
     var lastKnownLocation by remember{ mutableStateOf<Location?>(null)}
     var deviceLatIng by remember { mutableStateOf(LatLng(0.0,0.0)) }
     val locationResult=fusedLocationProviderClient.getCurrentLocation(100,null)
-    var inicioPantalla by remember{ mutableStateOf(true) }
+    val inicioPantalla:Boolean by myViewModel.inicioPantall.observeAsState(true)
     if (inicioPantalla){
         locationResult.addOnCompleteListener(context as MainActivity){task->
             if(task.isSuccessful){
                 lastKnownLocation=task.result
                 deviceLatIng= LatLng(lastKnownLocation!!.latitude,lastKnownLocation!!.longitude)
                 cameraPositionState.position= CameraPosition.fromLatLngZoom(deviceLatIng,15f)
-                inicioPantalla=false
+                myViewModel.inicio()
             }
         }
-
     }
 
 
