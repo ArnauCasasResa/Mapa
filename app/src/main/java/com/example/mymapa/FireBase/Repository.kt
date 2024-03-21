@@ -2,15 +2,11 @@ package com.example.mymapa.FireBase
 
 import android.util.Log
 import com.example.mymapa.Marca
-import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.QuerySnapshot
-import java.util.EventListener
 
 class Repository {
-    val database=FirebaseFirestore.getInstance()
+    private val database=FirebaseFirestore.getInstance()
 
     fun addMarker(marker: Marca){
         database.collection("markers")

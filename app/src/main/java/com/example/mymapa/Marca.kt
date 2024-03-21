@@ -16,9 +16,4 @@ class Marca {
         this.ubicacion=ubi
         this.descripcion=des
     }
-
-
-    fun addImage(img:Bitmap){
-        this.imagenes.add(img)
-    }
 }

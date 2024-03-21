@@ -34,7 +34,6 @@ class MyViewModel:ViewModel() {
     private val repository = Repository()
 
     fun addTOList(marca:Marca){
-        val repository= Repository()
         repository.addMarker(marca)
     }
     fun deleteTOList(marca: Marca){
@@ -59,8 +58,11 @@ class MyViewModel:ViewModel() {
         this._marcaActual.value?.nombre=nomMarca
         this._marcaActual.value?.descripcion=descripcioMarca
     }
-    fun editMarker(marker: Marca){
-        repository.editMarker(marker)
+    fun addImage(imagen: Bitmap){
+        _marcaActual.value?.imagenes?.add(imagen)
+    }
+    fun editMarker(){
+        repository.editMarker(_marcaActual.value!!)
     }
     fun inicio(){
         _inicioPantall.value=false

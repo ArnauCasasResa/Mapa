@@ -63,10 +63,11 @@ fun CameraScreen(navController: NavController,myViewModel: MyViewModel) {
             Column(horizontalAlignment = Alignment.CenterHorizontally,modifier=Modifier.fillMaxWidth()) {
                 IconButton(onClick = {
                     takePhoto(context,controller){photo->
-                        myViewModel.marcaActual.value?.addImage(photo)
-                        navController.navigate(Routes.DetallMarcador.route)
-                    }
-                }) {
+                        myViewModel.addImage(photo);myViewModel.editMarker()
+                        navController.navigate(Routes.DetallMarcador.route)}
+
+                })
+                {
                     Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = "Take photo")
                 }
             }

@@ -69,6 +69,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun EditarMarcador(navController: NavController,myViewModel: MyViewModel){
+
     val show:Boolean by myViewModel.show.observeAsState(false)
     val marca=myViewModel.marcaActual.value
     val cameraPositionState= rememberCameraPositionState{
@@ -131,7 +132,7 @@ fun EditarMarcador(navController: NavController,myViewModel: MyViewModel){
                 Spacer(modifier =Modifier.height(10.dp))
                 Column(modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally){
-                    Button(onClick = { myViewModel.saveChanges(nombre,descripcion);myViewModel.editMarker(marca)
+                    Button(onClick = { myViewModel.saveChanges(nombre,descripcion);myViewModel.editMarker()
                         navController.navigate(Routes.DetallMarcador.route) }) {
                         Text(text = "Guardar cambios")
                     }
