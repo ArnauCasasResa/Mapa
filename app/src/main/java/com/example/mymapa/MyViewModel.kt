@@ -25,8 +25,10 @@ class MyViewModel:ViewModel() {
     var imagenActual=_imagenActual
     private var _listaMarcas= MutableLiveData(mutableListOf<Marca>())
     var listaMarcas=_listaMarcas
-    private var _show=MutableLiveData(false)
-    var show=_show
+    private var _showImage=MutableLiveData(false)
+    var showImage=_showImage
+    private var _showOptions=MutableLiveData(false)
+    var showOptions=_showOptions
     private var _inicioPantall=MutableLiveData(true)
     var inicioPantall=_inicioPantall
     private val _loading = MutableLiveData(true)
@@ -48,18 +50,26 @@ class MyViewModel:ViewModel() {
     fun changeImagenActual(imagen: Bitmap){
         imagenActual.value=imagen
     }
-    fun turnFalse(){
-        _show.value=false
+    fun turnFalseImage(){
+        _showImage.value=false
     }
-    fun turnTrue(){
-        _show.value=true
+    fun turnFalseOptions(){
+        _showOptions.value=false
+    }
+    fun turnTrueImage(){
+        _showImage.value=true
+    }
+    fun turnTrueOptions(){
+        _showOptions.value=true
     }
     fun saveChanges(nomMarca:String,descripcioMarca:String){
         this._marcaActual.value?.nombre=nomMarca
         this._marcaActual.value?.descripcion=descripcioMarca
     }
     fun addImage(imagen: Bitmap){
-        _marcaActual.value?.imagenes?.add(imagen)
+        _marcaActual.value?.imagenes?.apply {
+            add(imagen)
+        }
     }
     fun editMarker(){
         repository.editMarker(_marcaActual.value!!)
