@@ -32,6 +32,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,7 +49,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mymapa.OneMarker.DetallMarcador
 import com.example.mymapa.OneMarker.EditarMarcador
-import com.example.mymapa.OneMarker.GalleryScreen
+import com.example.mymapa.Register.SesioScreen
 import com.example.mymapa.ui.theme.MyMapaTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -97,7 +99,7 @@ fun MyTopAppBar(
             AbrirMenu(scope,state)
         },
         actions = {
-            IconButton(onClick = { }) {
+            IconButton(onClick = { navController.navigate(Routes.UsuarioDetall.route)}) {
                 Icon(imageVector = Icons.Filled.AccountCircle,contentDescription = null,
                     modifier = Modifier.size(36.dp))
             }
@@ -137,7 +139,6 @@ fun MyDrawer(myViewModel: MyViewModel){
     }
 }
 
-
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -147,35 +148,45 @@ fun MyScaffold(
     scope: CoroutineScope,
     state: DrawerState
 ){
+    val loggedIn by myViewModel.loggedIn.observeAsState(false)
     val permissionState = rememberPermissionState(android.Manifest.permission.ACCESS_FINE_LOCATION)
     LaunchedEffect(Unit) {
         permissionState.launchPermissionRequest()
     }
-    Scaffold(topBar = {MyTopAppBar(myViewModel,navController,scope,state) }) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            if (permissionState.status.isGranted){
-                NavHost(
-                    navController = navController,
-                    startDestination = Routes.MapScreen.route
-                )
-                {
-                    composable(Routes.MapScreen.route) { MapScreen(navController,myViewModel) }
-                    composable(Routes.ListaMarcadores.route) { ListaMarcadores(navController,myViewModel) }
-                    composable(Routes.DetallMarcador.route) { DetallMarcador(navController,myViewModel) }
-                    composable(Routes.CameraScreen.route) { CameraScreen(navController,myViewModel) }
-                    composable(Routes.MapAllMarkersScreen.route) { MapAllMarkersScreen(navController,myViewModel) }
-                    composable(Routes.EditarMarcador.route) { EditarMarcador(navController,myViewModel) }
-                    composable(Routes.GalleryScreen.route) { GalleryScreen(navController,myViewModel) }
+    if (!loggedIn){
+        SesioScreen(navController, myViewModel)
+    }else{
+        Scaffold(topBar = {MyTopAppBar(myViewModel,navController,scope,state) }) { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                if (permissionState.status.isGranted){
+                    NavHost(
+                        navController = navController,
+                        startDestination = Routes.MapScreen.route
+                    )
+                    {
+                        composable(Routes.MapScreen.route) { MapScreen(navController,myViewModel) }
+                        composable(Routes.ListaMarcadores.route) { ListaMarcadores(navController,myViewModel) }
+                        composable(Routes.DetallMarcador.route) { DetallMarcador(navController,myViewModel) }
+                        composable(Routes.CameraScreen.route) { CameraScreen(navController,myViewModel) }
+                        composable(Routes.MapAllMarkersScreen.route) { MapAllMarkersScreen(navController,myViewModel) }
+                        composable(Routes.EditarMarcador.route) { EditarMarcador(navController,myViewModel) }
+                        composable(Routes.SesioScreen.route) { SesioScreen(navController,myViewModel) }
+                        composable(Routes.UsuarioDetall.route) { UsuarioDetall(navController,myViewModel) }
+                    }
                 }
-            }
 
+            }
         }
     }
+
 }
+
+
+
 @Composable
 fun AbrirMenu(scope: CoroutineScope, state: DrawerState){
     IconButton(onClick = { scope.launch { state.open() } }) {

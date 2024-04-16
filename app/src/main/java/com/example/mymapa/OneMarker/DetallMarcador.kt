@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -58,6 +59,8 @@ import androidx.compose.ui.window.DialogWindowProvider
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.navigation.NavController
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mymapa.MyViewModel
 import com.example.mymapa.R
 import com.example.mymapa.Routes
@@ -71,7 +74,6 @@ import com.google.maps.android.compose.rememberCameraPositionState
 @Composable
 fun DetallMarcador(navController: NavController,myViewModel: MyViewModel){
     val showImage:Boolean by myViewModel.showImage.observeAsState(false)
-    val showOptions:Boolean by myViewModel.showOptions.observeAsState(false)
     val marca=myViewModel.marcaActual.value
     val cameraPositionState= rememberCameraPositionState{
         if (marca != null) {
@@ -96,6 +98,7 @@ fun DetallMarcador(navController: NavController,myViewModel: MyViewModel){
             if (marca != null) {
                 Text(text = "Nombre: ${marca.nombre}",modifier = Modifier.padding(8.dp))
                 Text(text = "Descripcion: ${marca.descripcion}",modifier = Modifier.padding(8.dp))
+                Text(text = "Tipo: ${marca.tipo}",modifier = Modifier.padding(8.dp))
                 Spacer(modifier =Modifier.height(20.dp))
                 if (marca.imagenes.isNotEmpty()) {
                     Box(modifier= Modifier
@@ -137,16 +140,17 @@ fun DetallMarcador(navController: NavController,myViewModel: MyViewModel){
 
 
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun CartaImagen(image: Bitmap,myViewModel: MyViewModel) {
+fun CartaImagen(imageUrl: String,myViewModel: MyViewModel) {
     Card(
         border = BorderStroke(2.dp, Color.Transparent),
         modifier = Modifier
             .padding(8.dp)
             .size(100.dp)
-            .clickable { myViewModel.changeImagenActual(image);myViewModel.turnTrueImage() })
+            .clickable { myViewModel.changeImagenActual(imageUrl);myViewModel.turnTrueImage() })
     {
-        Image(bitmap = image.asImageBitmap(), contentDescription = "Imagen de la marca", contentScale = ContentScale.Crop)
+        GlideImage(model = imageUrl, contentDescription = "Image from storage", contentScale = ContentScale.Crop)
     }
 
 }
@@ -166,6 +170,7 @@ fun CartaAdd(navController: NavController,myViewModel: MyViewModel) {
     }
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun MyDialogImage(show: Boolean, onDismiss: () -> Unit,myViewModel: MyViewModel){
     if(show){
@@ -173,9 +178,8 @@ fun MyDialogImage(show: Boolean, onDismiss: () -> Unit,myViewModel: MyViewModel)
             (LocalView.current.parent as DialogWindowProvider).window.setDimAmount(0.8f)
             Column(
                 Modifier
-                    .background(Color.White)
-                    .fillMaxWidth()) {
-                myViewModel.imagenActual.value?.let { Image(bitmap = it.asImageBitmap(), contentDescription = "Imagen de la marca",contentScale = ContentScale.Crop) }
+                    .background(Color.White)) {
+                myViewModel.imagenActual.value?.let { GlideImage(model = it, contentDescription = "Imagen de la marca", contentScale = ContentScale.Fit) }
             }
         }
     }

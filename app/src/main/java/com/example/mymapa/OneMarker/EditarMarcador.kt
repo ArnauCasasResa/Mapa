@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -19,6 +20,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,6 +46,8 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun EditarMarcador(navController: NavController,myViewModel: MyViewModel){
+    var expanded by remember { mutableStateOf(false) }
+    val opciones = listOf("Hospital", "Hotel", "Restaurant","Escuela","")
 
     val show:Boolean by myViewModel.showImage.observeAsState(false)
     val marca=myViewModel.marcaActual.value
@@ -69,21 +74,35 @@ fun EditarMarcador(navController: NavController,myViewModel: MyViewModel){
             if (marca != null) {
                 var nombre by remember { mutableStateOf(marca.nombre) }
                 var descripcion by remember { mutableStateOf(marca.descripcion) }
+                var tipo by remember{ mutableStateOf(marca.tipo) }
                 Spacer(modifier =Modifier.height(10.dp))
-                Row {
-                    OutlinedTextField(
-                        value = nombre,
-                        onValueChange = { nombre = it },
-                        label = { Text("Nombre") }
-                    )
+                OutlinedTextField(
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    label = { Text("Nombre") }
+                )
+
+
+                OutlinedTextField(
+                    value = descripcion,
+                    onValueChange = { descripcion = it },
+                    label = { Text("Descripcion") }
+                )
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.width(125.dp)
+                ) {
+                    opciones.forEach { option ->
+                        DropdownMenuItem(text = { Text(text = option) },
+                            modifier = Modifier.height(40.dp),
+                            onClick = {
+                                expanded = false
+                                tipo=option
+                            })
+                    }
                 }
-                Row {
-                    OutlinedTextField(
-                        value = descripcion,
-                        onValueChange = { descripcion = it },
-                        label = { Text("Descripcion") }
-                    )
-                }
+                
                 Spacer(modifier =Modifier.height(20.dp))
                 if (marca.imagenes.isNotEmpty()) {
                     Box(modifier= Modifier
@@ -106,7 +125,7 @@ fun EditarMarcador(navController: NavController,myViewModel: MyViewModel){
                 Spacer(modifier =Modifier.height(10.dp))
                 Column(modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally){
-                    Button(onClick = { myViewModel.saveChanges(nombre,descripcion);myViewModel.editMarker()
+                    Button(onClick = { myViewModel.saveChanges(nombre,descripcion,tipo);myViewModel.editMarker()
                         navController.navigate(Routes.DetallMarcador.route) }) {
                         Text(text = "Guardar cambios")
                     }

@@ -1,27 +1,22 @@
 package com.example.mymapa
 
-import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.mymapa.Clases.Marca
 import com.example.mymapa.FireBase.Repository
 import com.google.android.gms.maps.model.LatLng
-import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.QuerySnapshot
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-
 class MyViewModel:ViewModel() {
 
-    private val _marcaActual=MutableLiveData(Marca("ITB",LatLng(41.4534265,2.1837151),"Inst Tecnologic de Bcn"))
+    private val _marcaActual=MutableLiveData(Marca("ITB",LatLng(41.4534265,2.1837151),"Inst Tecnologic de Bcn","Escuela",""))
     var marcaActual=_marcaActual
-    private val _imagenActual=MutableLiveData(Bitmap.createBitmap(1,1,Bitmap.Config.ARGB_8888))
+    private val _imagenActual=MutableLiveData("")
     var imagenActual=_imagenActual
     private var _listaMarcas= MutableLiveData(mutableListOf<Marca>())
     var listaMarcas=_listaMarcas
@@ -35,7 +30,12 @@ class MyViewModel:ViewModel() {
     val loading = _loading
     private val repository = Repository()
 
-    fun addTOList(marca:Marca){
+    private val _loggedIn = MutableLiveData<Boolean>()
+    val loggedIn = _loggedIn
+
+
+
+    fun addTOList(marca: Marca){
         repository.addMarker(marca)
     }
     fun deleteTOList(marca: Marca){
@@ -47,30 +47,21 @@ class MyViewModel:ViewModel() {
     fun changeActual(marca: Marca){
         marcaActual.value=marca
     }
-    fun changeImagenActual(imagen: Bitmap){
+    fun changeImagenActual(imagen: String){
         imagenActual.value=imagen
     }
     fun turnFalseImage(){
         _showImage.value=false
     }
-    fun turnFalseOptions(){
-        _showOptions.value=false
-    }
     fun turnTrueImage(){
         _showImage.value=true
     }
-    fun turnTrueOptions(){
-        _showOptions.value=true
-    }
-    fun saveChanges(nomMarca:String,descripcioMarca:String){
+    fun saveChanges(nomMarca:String,descripcioMarca:String,tipo:String){
         this._marcaActual.value?.nombre=nomMarca
         this._marcaActual.value?.descripcion=descripcioMarca
+        this._marcaActual.value?.tipo=tipo
     }
-    fun addImage(imagen: Bitmap){
-        _marcaActual.value?.imagenes?.apply {
-            add(imagen)
-        }
-    }
+
     fun editMarker(){
         repository.editMarker(_marcaActual.value!!)
     }
@@ -93,10 +84,10 @@ class MyViewModel:ViewModel() {
                         val ubicacionMap = document.get("ubicacion") as? Map<String, Double>
                         val ubicacion = LatLng(ubicacionMap?.get("latitude") ?: 0.0, ubicacionMap?.get("longitude") ?: 0.0)
                         val tipo = document.getString("tipo") ?: ""
-                        val imagenes = document.get("imagenes") as? MutableList<Bitmap> ?: mutableListOf<Bitmap>()
+                        val imagenes = document.get("imagenes") as? MutableList<String> ?: mutableListOf<String>()
+                        val id = document.getString("id") ?: ""
 
-                        val newMark = Marca(nombre, ubicacion, descripcion)
-                        newMark.tipo=tipo
+                        val newMark = Marca(nombre, ubicacion, descripcion,tipo,id)
                         newMark.imagenes=imagenes
                         tempList.add(newMark)
                     }
@@ -105,4 +96,21 @@ class MyViewModel:ViewModel() {
             }
         })
     }
+    val goToNext=repository._goToNext
+    fun uploadImage(image: Uri){
+        repository.uploadImage(image,_marcaActual.value!!)
+    }
+    fun register(mail:String,pswrd:String){
+        repository.register(mail,pswrd)
+    }
+    fun login(mail:String,pswrd:String){
+        repository.login(mail,pswrd)
+    }
+    fun log(p:Boolean){
+        _loggedIn.value=p
+    }
+    fun logOUt(){
+        repository.logOut()
+    }
+
 }

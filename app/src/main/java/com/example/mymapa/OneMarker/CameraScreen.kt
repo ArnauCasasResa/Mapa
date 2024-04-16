@@ -1,8 +1,10 @@
 import android.Manifest
+import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.graphics.Matrix
+import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
@@ -26,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.FlipCameraAndroid
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.PhotoCamera
@@ -48,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.graphics.drawable.toBitmapOrNull
 import androidx.navigation.NavController
 import com.example.mymapa.MyViewModel
 import com.example.mymapa.R
@@ -55,6 +59,7 @@ import com.example.mymapa.Routes
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import java.io.OutputStream
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -64,19 +69,17 @@ fun CameraScreen(navController: NavController,myViewModel: MyViewModel) {
     val context= LocalContext.current
     val controller=remember{LifecycleCameraController(context).apply { CameraController.IMAGE_CAPTURE }}
     //---------------------------------GALERIA---------------------------------
-    val img:Bitmap?= ContextCompat.getDrawable(context, R.drawable.pin)?.toBitmap()
+    val img:Bitmap?= ContextCompat.getDrawable(context, R.drawable.pin)?.toBitmapOrNull()
     var bitmap by remember { mutableStateOf(img) }
     val launchImage= rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = {
             if (Build.VERSION.SDK_INT<28){
                 bitmap= MediaStore.Images.Media.getBitmap(context.contentResolver,it)
+                if (it != null) myViewModel.uploadImage(it);myViewModel.editMarker()
             }else{
                 val source=it?.let { it1-> ImageDecoder.createSource(context.contentResolver,it1) }
-                source?.let { it1-> ImageDecoder.decodeBitmap(it1)}
-                myViewModel.addImage(bitmap!!)
-                navController.navigate(Routes.DetallMarcador.route)
-                Log.e("IMAGEN","si va")
+                if (it != null) myViewModel.uploadImage(it);myViewModel.editMarker()
             }
         }
     )
@@ -93,12 +96,17 @@ fun CameraScreen(navController: NavController,myViewModel: MyViewModel) {
                 } else CameraSelector.DEFAULT_BACK_CAMERA},Modifier.offset(16.dp,16.dp)) {
                 Icon(imageVector = Icons.Default.FlipCameraAndroid, contentDescription = "Switch camera")
             }
-            Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Bottom) {
+            Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.SpaceBetween) {
                 Row {
                     IconButton(onClick = {
+                        navController.navigateUp()
+                    }){
+                        Icon(imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Go back")
+                    }
+                    IconButton(onClick = {
                         takePhoto(context,controller){photo->
-                            myViewModel.addImage(photo)
-                            navController.navigate(Routes.DetallMarcador.route)
+                            bitmapToUri(context,photo)?.let { myViewModel.uploadImage(it) }
+                            myViewModel.editMarker()
                         }
                     }){
                         Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = "Take photo")
@@ -161,4 +169,24 @@ private fun takePhoto(context: Context, controller: LifecycleCameraController, o
             }
         }
     )
+}
+
+fun bitmapToUri(context: Context, bitmap: Bitmap): Uri? {
+    val filename = "${System.currentTimeMillis()}.jpg"
+    val values = ContentValues().apply {
+        put(MediaStore.Images.Media.TITLE, filename)
+        put(MediaStore.Images.Media.DISPLAY_NAME, filename)
+        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis())
+        put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis())
+    }
+
+    val uri: Uri? = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+    uri?.let {
+        val outstream: OutputStream? = context.contentResolver.openOutputStream(it)
+        outstream?.let { bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it) }
+        outstream?.close()
+    }
+
+    return uri
 }
