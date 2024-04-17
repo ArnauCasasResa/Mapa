@@ -12,6 +12,7 @@ class Marca {
     var imagenes:MutableList<String> = mutableListOf()
     var tipo:String=""
     var id:String=""
+    var usuario:String=""
 
     constructor()
     constructor(nom:String,ubi:LatLng,des:String,tipo:String,id:String){

@@ -18,7 +18,10 @@ class UserPrefs(private val context:Context) {
     }
 
     val getUserData: Flow<List<String>> = context.dataStore.data.map { prefs ->
-        listOf(prefs[STORE_USERNAME] ?: "", prefs[STORE_USERPASS] ?: "")
+        listOf(
+                prefs[STORE_USERNAME] ?: "",
+                prefs[STORE_USERPASS] ?: ""
+        )
     }
 
     suspend fun saveUserData(username:String, userpass:String){

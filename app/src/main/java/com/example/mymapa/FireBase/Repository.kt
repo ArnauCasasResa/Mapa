@@ -26,7 +26,8 @@ class Repository {
                 ),
                 "descripcion" to marker.descripcion,
                 "tipo" to marker.tipo,
-                "imagenes" to marker.imagenes
+                "imagenes" to marker.imagenes,
+                "usuario" to marker.usuario
             ))
     }
     fun getMarkersFromDataBase(): CollectionReference {
@@ -88,34 +89,4 @@ class Repository {
             }
     }
 
-    private val auth =FirebaseAuth.getInstance()
-    var _goToNext= MutableLiveData<Boolean>()
-    var _userId= MutableLiveData<String>()
-    var _loggedUser= MutableLiveData<String>()
-    fun register(username:String,passwrd:String){
-        auth.createUserWithEmailAndPassword(username,passwrd)
-            .addOnCompleteListener{task->
-                if(task.isSuccessful){
-                    _goToNext.value=true
-                }else{
-                    _goToNext.value=false
-                }
-            }
-    }
-
-    fun login(username:String?,passwrd:String?){
-        auth.signInWithEmailAndPassword(username!!,passwrd!!)
-            .addOnCompleteListener{task->
-                if(task.isSuccessful){
-                    _userId.value= task.result.user?.uid
-                    _loggedUser.value = task.result.user?.email?.split("@")?.get(0)
-                    _goToNext.value=true
-                }else{
-                    _goToNext.value=false
-                }
-            }
-    }
-    fun logOut(){
-        auth.signOut()
-    }
 }

@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -114,25 +115,21 @@ fun MyDrawer(myViewModel: MyViewModel){
     val scope= rememberCoroutineScope()
     val state:DrawerState= rememberDrawerState(initialValue = DrawerValue.Closed)
     ModalNavigationDrawer(drawerState = state, gesturesEnabled = false, drawerContent = {
-        ModalDrawerSheet {
-            Text(text="Menu", modifier = Modifier.padding(16.dp))
+        ModalDrawerSheet(
+            modifier = Modifier.clickable { scope.launch { state.close() } }
+        ) {
+            Text(text="Menu", modifier = Modifier.padding(16.dp), fontFamily = titleFont, fontSize = 36.sp)
             Divider()
-            NavigationDrawerItem(label = { Text(text = "Mapa", fontFamily = nameFont)},
+            NavigationDrawerItem(label = { Text(text = "Mapa", fontFamily = titleFont, fontSize = 20.sp)},
                 selected = false,
                 onClick = {navController.navigate(Routes.MapScreen.route)
                     scope.launch { state.close() }
                 })
-            NavigationDrawerItem(label = { Text(text = "Lista de marcadores",fontFamily = nameFont)},
+            NavigationDrawerItem(label = { Text(text = "Lista de marcadores",fontFamily = titleFont,fontSize = 20.sp)},
                 selected = false,
                 onClick = {navController.navigate(Routes.ListaMarcadores.route)
                     scope.launch { state.close() }
                 })
-            NavigationDrawerItem(label = { Text(text = "Todos los marcadores", fontFamily = nameFont)},
-                selected = false,
-                onClick = {navController.navigate(Routes.MapAllMarkersScreen.route)
-                    scope.launch { state.close()}
-                })
-
         }
     }) {
         MyScaffold(myViewModel,navController,scope,state )
@@ -172,7 +169,6 @@ fun MyScaffold(
                         composable(Routes.ListaMarcadores.route) { ListaMarcadores(navController,myViewModel) }
                         composable(Routes.DetallMarcador.route) { DetallMarcador(navController,myViewModel) }
                         composable(Routes.CameraScreen.route) { CameraScreen(navController,myViewModel) }
-                        composable(Routes.MapAllMarkersScreen.route) { MapAllMarkersScreen(navController,myViewModel) }
                         composable(Routes.EditarMarcador.route) { EditarMarcador(navController,myViewModel) }
                         composable(Routes.SesioScreen.route) { SesioScreen(navController,myViewModel) }
                         composable(Routes.UsuarioDetall.route) { UsuarioDetall(navController,myViewModel) }
@@ -194,7 +190,7 @@ fun AbrirMenu(scope: CoroutineScope, state: DrawerState){
     }
 }
 val nameFont = FontFamily(
-    Font(R.font.go3v2, FontWeight.Bold)
+    Font(R.font.mario, FontWeight.Bold)
 )
 val titleFont = FontFamily(
     Font(R.font.poke, FontWeight.Bold)

@@ -48,7 +48,7 @@ fun ListaMarcadores(navController: NavController,myViewModel: MyViewModel){
         Column(modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
-            Text(text = "No hay personajes en favoritos.",
+            Text(text = "No hay marcadores guardados.",
                 fontStyle = FontStyle.Italic,
                 color = Color.LightGray)
         }
@@ -87,7 +87,7 @@ fun MarckerItem(marca: Marca, navController: NavController, myViewModel: MyViewM
             Text(
                 text = marca.nombre,
                 style = MaterialTheme.typography.bodyLarge,
-                fontFamily = nameFont,
+                fontFamily = titleFont,
                 fontSize = 45.sp,
                 modifier = Modifier.weight(1f)
             )

@@ -33,7 +33,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.mymapa.MyViewModel
 import com.example.mymapa.Routes
@@ -47,7 +50,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 @Composable
 fun EditarMarcador(navController: NavController,myViewModel: MyViewModel){
     var expanded by remember { mutableStateOf(false) }
-    val opciones = listOf("Hospital", "Hotel", "Restaurant","Escuela","")
+    val opciones = listOf("Marcador Comun","Hospital", "Hotel", "Restaurant","Escuela","Veterinario")
 
     val show:Boolean by myViewModel.showImage.observeAsState(false)
     val marca=myViewModel.marcaActual.value
@@ -81,28 +84,37 @@ fun EditarMarcador(navController: NavController,myViewModel: MyViewModel){
                     onValueChange = { nombre = it },
                     label = { Text("Nombre") }
                 )
-
-
                 OutlinedTextField(
                     value = descripcion,
                     onValueChange = { descripcion = it },
                     label = { Text("Descripcion") }
                 )
+                Spacer(modifier =Modifier.height(5.dp))
+                OutlinedTextField(
+                    value = tipo,
+                    onValueChange = { tipo = it},
+                    enabled = false,
+                    readOnly = true,
+                    modifier = Modifier
+                        .clickable { expanded = true }
+                        .height(60.dp)
+                        .background(color = Color.White)
+
+                )
+
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
-                    modifier = Modifier.width(125.dp)
                 ) {
-                    opciones.forEach { option ->
-                        DropdownMenuItem(text = { Text(text = option) },
-                            modifier = Modifier.height(40.dp),
-                            onClick = {
-                                expanded = false
-                                tipo=option
-                            })
+                    opciones.forEach { type ->
+                        DropdownMenuItem(text = { Text(text = type, ) }, onClick = {
+                            expanded = false
+                            tipo=type
+                        })
                     }
                 }
-                
+
+
                 Spacer(modifier =Modifier.height(20.dp))
                 if (marca.imagenes.isNotEmpty()) {
                     Box(modifier= Modifier
@@ -136,8 +148,5 @@ fun EditarMarcador(navController: NavController,myViewModel: MyViewModel){
         }
     }
 }
-
-
-
 
 

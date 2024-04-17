@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.example.mymapa.Clases.Marca
 import com.example.mymapa.FireBase.Repository
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.EventListener
@@ -86,31 +87,60 @@ class MyViewModel:ViewModel() {
                         val tipo = document.getString("tipo") ?: ""
                         val imagenes = document.get("imagenes") as? MutableList<String> ?: mutableListOf<String>()
                         val id = document.getString("id") ?: ""
+                        val usuario =document.getString("usuario") ?: ""
 
                         val newMark = Marca(nombre, ubicacion, descripcion,tipo,id)
                         newMark.imagenes=imagenes
+                        newMark.usuario=usuario
                         tempList.add(newMark)
                     }
                 }
-                _listaMarcas.value = tempList
+                val filtredList = mutableListOf<Marca>()
+                for (marca in tempList){
+                    if(marca.usuario == _userId.value){
+                        filtredList.add(marca)
+                    }
+                }
+                _listaMarcas.value = filtredList
             }
         })
     }
-    val goToNext=repository._goToNext
     fun uploadImage(image: Uri){
         repository.uploadImage(image,_marcaActual.value!!)
     }
-    fun register(mail:String,pswrd:String){
-        repository.register(mail,pswrd)
+
+
+    private val auth = FirebaseAuth.getInstance()
+    var _goToNext= MutableLiveData<Boolean>()
+    var _userId= MutableLiveData<String>()
+    var _loggedUser= MutableLiveData<String>()
+    fun register(username:String,passwrd:String){
+        auth.createUserWithEmailAndPassword(username,passwrd)
+            .addOnCompleteListener{task->
+                if(task.isSuccessful){
+                    _goToNext.value=true
+                }else{
+                    _goToNext.value=false
+                }
+            }
     }
-    fun login(mail:String,pswrd:String){
-        repository.login(mail,pswrd)
+
+    fun login(username:String?,passwrd:String?){
+        auth.signInWithEmailAndPassword(username!!,passwrd!!)
+            .addOnCompleteListener{task->
+                if(task.isSuccessful){
+                    _userId.value= task.result.user?.uid
+                    _loggedUser.value = task.result.user?.email?.split("@")?.get(0)
+                    _goToNext.value=true
+                }else{
+                    _goToNext.value=false
+                }
+            }
+    }
+    fun logOut(){
+        auth.signOut()
     }
     fun log(p:Boolean){
         _loggedIn.value=p
     }
-    fun logOUt(){
-        repository.logOut()
-    }
-
 }

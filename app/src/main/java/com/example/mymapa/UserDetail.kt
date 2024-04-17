@@ -18,7 +18,7 @@ fun UsuarioDetall(navController: NavHostController, myViewModel: MyViewModel) {
 
         Button(onClick = {
             navController.navigate(Routes.MapScreen.route)
-            myViewModel.logOUt()
+            myViewModel.logOut()
             myViewModel.log(false)
             }) {
             Text(text = "Log Out")

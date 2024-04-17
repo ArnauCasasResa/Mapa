@@ -94,7 +94,7 @@ fun MapScreen(navController: NavController,myViewModel: MyViewModel){
             ) {
                 var nombre by remember{ mutableStateOf("")}
                 var descripcion by remember{ mutableStateOf("")}
-                var tipo by remember { mutableStateOf("") }
+                var tipo by remember { mutableStateOf("Marcador Comun") }
                 var id by remember { mutableStateOf("") }
                 Column(Modifier.padding(10.dp)) {
                     TextField(
@@ -125,6 +125,7 @@ fun MapScreen(navController: NavController,myViewModel: MyViewModel){
                     Button(onClick = {
                         id=UUID.randomUUID().toString()
                         val marca= Marca(nombre,nuevaMarca,descripcion,tipo,id)
+                        marca.usuario=myViewModel._userId.value!!
                         myViewModel.addTOList(marca)
                         scope.launch { sheetState.hide() }.invokeOnCompletion {
                             if (!sheetState.isVisible) {
