@@ -146,7 +146,7 @@ fun MyScaffold(
     scope: CoroutineScope,
     state: DrawerState
 ){
-    val loggedIn:Boolean by myViewModel.loggedIn.observeAsState(false)
+    val loggedIn:Boolean by myViewModel._goToNext.observeAsState(false)
     val permissionState = rememberPermissionState(android.Manifest.permission.ACCESS_FINE_LOCATION)
     LaunchedEffect(Unit) {
         permissionState.launchPermissionRequest()
