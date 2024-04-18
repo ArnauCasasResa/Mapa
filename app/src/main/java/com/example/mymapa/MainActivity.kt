@@ -51,6 +51,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mymapa.OneMarker.DetallMarcador
 import com.example.mymapa.OneMarker.EditarMarcador
 import com.example.mymapa.Register.SesioScreen
+import com.example.mymapa.Register.UsuarioDetall
 import com.example.mymapa.ui.theme.MyMapaTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -145,7 +146,7 @@ fun MyScaffold(
     scope: CoroutineScope,
     state: DrawerState
 ){
-    val loggedIn by myViewModel.loggedIn.observeAsState(false)
+    val loggedIn:Boolean by myViewModel.loggedIn.observeAsState(false)
     val permissionState = rememberPermissionState(android.Manifest.permission.ACCESS_FINE_LOCATION)
     LaunchedEffect(Unit) {
         permissionState.launchPermissionRequest()

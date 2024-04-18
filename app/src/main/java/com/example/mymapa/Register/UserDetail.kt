@@ -1,4 +1,4 @@
-package com.example.mymapa
+package com.example.mymapa.Register
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -10,6 +10,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
+import com.example.mymapa.MyViewModel
+import com.example.mymapa.R
+import com.example.mymapa.Routes
 
 @Composable
 fun UsuarioDetall(navController: NavHostController, myViewModel: MyViewModel) {
@@ -19,6 +22,7 @@ fun UsuarioDetall(navController: NavHostController, myViewModel: MyViewModel) {
         Button(onClick = {
             navController.navigate(Routes.MapScreen.route)
             myViewModel.logOut()
+            myViewModel._goToNext.value = false
             myViewModel.log(false)
             }) {
             Text(text = "Log Out")
