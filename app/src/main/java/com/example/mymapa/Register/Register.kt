@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -55,86 +56,94 @@ fun SesioScreen(navController: NavHostController, myViewModel: MyViewModel) {
     val storedUserData=userPrefs.getUserData.collectAsState(initial = emptyList())
     var remember by remember{ mutableStateOf(false)}
     if (storedUserData.value.isNotEmpty() && storedUserData.value[0]!="" && storedUserData.value[1]!=""){
-        myViewModel.login(storedUserData.value[0],storedUserData.value[1])
-        if (myViewModel._goToNext.value == true) {
-            myViewModel.log(true)
+        storedUserData.value.let {
+            mail=it[0]
+            password=it[1]
         }
-    }else{
-        Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Text(text = if (login==0) "INICIAR SESION" else if (login==1) "REGISTRARSE" else "", fontFamily = nameFont, fontSize = 30.sp)
-            if (login!=2){
-                Spacer(modifier = Modifier.height(20.dp))
-                OutlinedTextField(
-                    value = mail,
-                    onValueChange = { mail = it },
-                    label = { Text("Correo electronico") }
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Contraseña") }
-                )
-                if (!showError){
-                    Box(modifier = Modifier
-                        .background(Color.Red)
-                        .padding(10.dp)
-                        .width(260.dp)){
+    }
+    Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Text(text = if (login==0) "INICIAR SESION" else if (login==1) "REGISTRARSE" else "", fontFamily = nameFont, fontSize = 30.sp)
+        if (login!=2){
+            Spacer(modifier = Modifier.height(20.dp))
+            OutlinedTextField(
+                value = mail,
+                onValueChange = { mail = it },
+                label = { Text("Correo electronico") }
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Contraseña") }
+            )
+            if (!showError){
+                Box(modifier = Modifier
+                    .background(Color.Red)
+                    .padding(10.dp)
+                    .width(260.dp)){
+                    if (login==0)
                         Text(text = "Correo electronico o contraseña incorrectos.", textAlign = TextAlign.Center)
-                    }
+                    else if (login==1)
+                        Text(text = "El correo electronico ya esta en uso.", textAlign = TextAlign.Center)
+
                 }
-                Spacer(modifier = Modifier.height(10.dp))
-                Row {
+            }
+            if (login==0){
+                Row(Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.Start,verticalAlignment = Alignment.CenterVertically) {
+                    Spacer(modifier = Modifier.width(50.dp))
                     Checkbox(checked =remember , onCheckedChange ={remember=it} )
-                    Text("Recordarme")
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-                Row {
-                    if (login==1) {
-                        Text("¿Ya tienes cuenta? ")
-                        Text("Iniciar sesion", modifier = Modifier.clickable {login=0 },color = Color.Blue)
-                    }else if (login==0){
-                        Text("¿No tienes cuenta? ")
-                        Text("Registrate", modifier=Modifier.clickable { login=1}, color = Color.Blue)
-                    }
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-                if (login==0){
-                    Button(onClick = { myViewModel.login(mail,password)
-                        if (myViewModel._goToNext.value == true) {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                if (remember){
-                                    userPrefs.saveUserData(mail,password)
-                                }
-                            }
-                            myViewModel.log(true)
-                        }})
-                    {
-                        Text(text = "Log In")
-                    }
-                }else if (login==1){
-                    Button(onClick = { myViewModel.register(mail,password)
-                        if (myViewModel._goToNext.value == true) {
-                            login=0
-                        }}) {
-                        Text(text = "Register")
-                    }
+                    Text("Recordarme",)
                 }
             }else{
-                Column(modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,) {
-                    Text(text = "Usuari creat correctament!",
-                        color = Color.Green,
-                        fontSize = 30.sp,
-                        fontFamily = titleFont,
-                        textAlign = TextAlign.Center)
-                    CoroutineScope(Dispatchers.Main).launch {
-                        delay(3500)
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+            Row {
+                if (login==1) {
+
+                    Text("¿Ya tienes cuenta? ")
+                    Text("Iniciar sesion", modifier = Modifier.clickable {login=0 },color = Color.Blue)
+                }else if (login==0){
+                    Text("¿No tienes cuenta? ")
+                    Text("Registrate", modifier=Modifier.clickable { login=1}, color = Color.Blue)
+                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            if (login==0){
+                Button(onClick = { myViewModel.login(mail,password)
+                    if (myViewModel._goToNext.value == true) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            if (remember){
+                                userPrefs.saveUserData(mail,password)
+                            }
+                        }
+                        myViewModel.log(true)
+                    }})
+                {
+                    Text(text = "Log In")
+                }
+            }else if (login==1){
+                Button(onClick = { myViewModel.register(mail,password)
+                    if (myViewModel._goToNext.value == true) {
                         login=0
-                    }
+                    }}) {
+                    Text(text = "Register")
+                }
+            }
+        }else{
+            Column(modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,) {
+                Text(text = "Usuari creat correctament!",
+                    color = Color.Green,
+                    fontSize = 30.sp,
+                    fontFamily = titleFont,
+                    textAlign = TextAlign.Center)
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(3500)
+                    login=0
                 }
             }
         }
     }
+
 }
