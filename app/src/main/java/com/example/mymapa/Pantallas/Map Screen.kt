@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -29,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -75,7 +77,6 @@ fun MapScreen(navController: NavController,myViewModel: MyViewModel){
         }
     }
 
-
     Column(modifier = Modifier.fillMaxSize()) {
        GoogleMap(modifier = Modifier.fillMaxSize(),cameraPositionState=cameraPositionState,
            onMapClick = {showBottomSheet=true;nuevaMarca=it},
@@ -96,8 +97,8 @@ fun MapScreen(navController: NavController,myViewModel: MyViewModel){
                 var descripcion by remember{ mutableStateOf("")}
                 var tipo by remember { mutableStateOf("Marcador Comun") }
                 var id by remember { mutableStateOf("") }
-                Column(Modifier.padding(10.dp)) {
-                    TextField(
+                Column(Modifier.fillMaxSize(),horizontalAlignment = Alignment.CenterHorizontally) {
+                    OutlinedTextField(
                         value = nombre,
                         onValueChange = { nombre = it },
                         label = { Text("Name") },
@@ -105,7 +106,7 @@ fun MapScreen(navController: NavController,myViewModel: MyViewModel){
                         placeholder = { Text(text = "New Ubication")}
                     )
                     Spacer(modifier = Modifier.height(30.dp))
-                    TextField(
+                    OutlinedTextField(
                         value = descripcion,
                         onValueChange = { descripcion = it },
                         label = { Text("Description") },

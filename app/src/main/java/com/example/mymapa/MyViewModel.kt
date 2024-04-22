@@ -31,10 +31,9 @@ class MyViewModel:ViewModel() {
     val loading = _loading
     private val repository = Repository()
 
-    private val _loggedIn = MutableLiveData<Boolean>()
-    val loggedIn = _loggedIn
+    val _loggedIn = MutableLiveData<Boolean>()
 
-
+    var primeraVez = true
 
     fun addTOList(marca: Marca){
         repository.addMarker(marca)
@@ -119,8 +118,10 @@ class MyViewModel:ViewModel() {
             .addOnCompleteListener{task->
                 if(task.isSuccessful){
                     _goToNext.value=true
+                    _loggedIn.value=true
                 }else{
                     _goToNext.value=false
+                    _loggedIn.value=false
                 }
             }
     }

@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,12 +56,16 @@ fun SesioScreen(navController: NavHostController, myViewModel: MyViewModel) {
     val userPrefs=UserPrefs(context)
     val storedUserData=userPrefs.getUserData.collectAsState(initial = emptyList())
     var remember by remember{ mutableStateOf(false)}
-    if (storedUserData.value.isNotEmpty() && storedUserData.value[0]!="" && storedUserData.value[1]!=""){
-        storedUserData.value.let {
-            mail=it[0]
-            password=it[1]
+    if (myViewModel.primeraVez){
+        if (storedUserData.value.isNotEmpty() && storedUserData.value[0]!="" && storedUserData.value[1]!=""){
+            storedUserData.value.let {
+                mail=it[0]
+                password=it[1]
+                myViewModel.primeraVez=false
+            }
         }
     }
+
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Text(text = if (login==0) "INICIAR SESION" else if (login==1) "REGISTRARSE" else "", fontFamily = nameFont, fontSize = 30.sp)
         if (login!=2){
@@ -74,7 +79,10 @@ fun SesioScreen(navController: NavHostController, myViewModel: MyViewModel) {
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Contraseña") }
+                label = { Text("Contraseña") },
+                visualTransformation = PasswordVisualTransformation(),
+                singleLine = true
+
             )
             if (!showError){
                 Box(modifier = Modifier
@@ -124,7 +132,7 @@ fun SesioScreen(navController: NavHostController, myViewModel: MyViewModel) {
             }else if (login==1){
                 Button(onClick = { myViewModel.register(mail,password)
                     if (myViewModel._goToNext.value == true) {
-                        login=0
+                        login=2
                     }}) {
                     Text(text = "Register")
                 }
