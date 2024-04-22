@@ -118,10 +118,8 @@ class MyViewModel:ViewModel() {
             .addOnCompleteListener{task->
                 if(task.isSuccessful){
                     _goToNext.value=true
-                    _loggedIn.value=true
                 }else{
                     _goToNext.value=false
-                    _loggedIn.value=false
                 }
             }
     }

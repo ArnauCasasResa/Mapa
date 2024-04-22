@@ -63,93 +63,112 @@ import java.io.OutputStream
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun CameraScreen(navController: NavController,myViewModel: MyViewModel) {
+fun CameraScreen(navController: NavController, myViewModel: MyViewModel) {
     //---------------------------------CAMERA---------------------------------
     val permissionState = rememberPermissionState(Manifest.permission.CAMERA)
-    val context= LocalContext.current
-    val controller=remember{LifecycleCameraController(context).apply { CameraController.IMAGE_CAPTURE }}
+    val context = LocalContext.current
+    val controller =
+        remember { LifecycleCameraController(context).apply { CameraController.IMAGE_CAPTURE } }
     //---------------------------------GALERIA---------------------------------
-    val img:Bitmap?= ContextCompat.getDrawable(context, R.drawable.pin)?.toBitmapOrNull()
+    val img: Bitmap? = ContextCompat.getDrawable(context, R.drawable.pin)?.toBitmapOrNull()
     var bitmap by remember { mutableStateOf(img) }
-    val launchImage= rememberLauncherForActivityResult(
+    val launchImage = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = {
-            if (Build.VERSION.SDK_INT<28){
-                bitmap= MediaStore.Images.Media.getBitmap(context.contentResolver,it)
+            if (Build.VERSION.SDK_INT < 28) {
+                bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
                 if (it != null) myViewModel.uploadImage(it);myViewModel.editMarker()
-            }else{
-                val source=it?.let { it1-> ImageDecoder.createSource(context.contentResolver,it1) }
+            } else {
+                val source =
+                    it?.let { it1 -> ImageDecoder.createSource(context.contentResolver, it1) }
                 if (it != null) myViewModel.uploadImage(it);myViewModel.editMarker()
             }
         }
     )
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
         permissionState.launchPermissionRequest()
     }
-    if (permissionState.status.isGranted){
-        Box(Modifier.fillMaxSize()) {
-            CameraPreview(controller = controller,modifier = Modifier.fillMaxSize())
-            IconButton(onClick = {
-                controller.cameraSelector=
-                if (controller.cameraSelector== CameraSelector.DEFAULT_BACK_CAMERA){
-                     CameraSelector.DEFAULT_FRONT_CAMERA
-                } else CameraSelector.DEFAULT_BACK_CAMERA},Modifier.offset(16.dp,16.dp)) {
-                Icon(imageVector = Icons.Default.FlipCameraAndroid, contentDescription = "Switch camera")
-            }
-            Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.SpaceBetween) {
-                Row {
-                    IconButton(onClick = {
-                        navController.navigateUp()
-                    }){
-                        Icon(imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Go back")
-                    }
-                    IconButton(onClick = {
-                        takePhoto(context,controller){photo->
-                            bitmapToUri(context,photo)?.let { myViewModel.uploadImage(it) }
-                            myViewModel.editMarker()
-                        }
-                    }){
-                        Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = "Take photo")
-                    }
-                    Spacer(modifier = Modifier.width(125.dp))
-                    IconButton(onClick = {
-                        launchImage.launch("image/*")
-                    }){
-                        Icon(imageVector = Icons.Default.Image, contentDescription = "Gallery")
-                    }
-                }
+    if (permissionState.status.isGranted) {
 
+        CameraPreview(controller = controller, modifier = Modifier.fillMaxSize())
+        IconButton(onClick = {
+            controller.cameraSelector =
+                if (controller.cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
+                    CameraSelector.DEFAULT_FRONT_CAMERA
+                } else CameraSelector.DEFAULT_BACK_CAMERA
+        }, Modifier.offset(16.dp, 16.dp)) {
+            Icon(
+                imageVector = Icons.Default.FlipCameraAndroid,
+                contentDescription = "Switch camera"
+            )
+        }
+        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                IconButton(onClick = {
+                    navController.navigateUp()
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBackIosNew,
+                        contentDescription = "Go back"
+                    )
+                }
+                IconButton(onClick = {
+                    takePhoto(context, controller) { photo ->
+                        bitmapToUri(context, photo)?.let { myViewModel.uploadImage(it) }
+                        myViewModel.editMarker()
+                    }
+                }) {
+                    Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = "Take photo")
+                }
+                IconButton(onClick = {
+                    launchImage.launch("image/*")
+                }) {
+                    Icon(imageVector = Icons.Default.Image, contentDescription = "Gallery")
+                }
             }
         }
-    }else{
-        Column(modifier = Modifier.fillMaxSize(),
+
+    } else {
+        Column(
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center) {
-            Text(text = "No hay permisos para la camara.",
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "No hay permisos para la camara.",
                 fontStyle = FontStyle.Italic,
-                color = Color.LightGray)
+                color = Color.LightGray
+            )
         }
     }
 }
-
-
 
 
 @Composable
-fun CameraPreview(controller: LifecycleCameraController,modifier:Modifier=Modifier){
-    val lifecycleOwner= LocalLifecycleOwner.current
-    AndroidView(factory = { PreviewView(it).apply {
-        this.controller=controller
-        controller.bindToLifecycle(lifecycleOwner)
-    }},modifier = modifier)
+fun CameraPreview(controller: LifecycleCameraController, modifier: Modifier = Modifier) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    AndroidView(factory = {
+        PreviewView(it).apply {
+            this.controller = controller
+            controller.bindToLifecycle(lifecycleOwner)
+        }
+    }, modifier = modifier)
 }
 
-private fun takePhoto(context: Context, controller: LifecycleCameraController, onPhotoTaken: (Bitmap) -> Unit) {
+private fun takePhoto(
+    context: Context,
+    controller: LifecycleCameraController,
+    onPhotoTaken: (Bitmap) -> Unit
+) {
     controller.takePicture(ContextCompat.getMainExecutor(context),
         object : ImageCapture.OnImageCapturedCallback() {
             override fun onCaptureSuccess(image: ImageProxy) {
                 super.onCaptureSuccess(image)
-                val matri = Matrix().apply{
+                val matri = Matrix().apply {
                     postRotate(image.imageInfo.rotationDegrees.toFloat())
                 }
                 val rotatedBitmap = Bitmap.createBitmap(
@@ -163,6 +182,7 @@ private fun takePhoto(context: Context, controller: LifecycleCameraController, o
                 )
                 onPhotoTaken(rotatedBitmap)
             }
+
             override fun onError(exception: ImageCaptureException) {
                 super.onError(exception)
                 Log.e("Camera", "Error capturing image", exception)
@@ -181,7 +201,8 @@ fun bitmapToUri(context: Context, bitmap: Bitmap): Uri? {
         put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis())
     }
 
-    val uri: Uri? = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+    val uri: Uri? =
+        context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
     uri?.let {
         val outstream: OutputStream? = context.contentResolver.openOutputStream(it)
         outstream?.let { bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it) }
