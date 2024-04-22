@@ -53,92 +53,132 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @SuppressLint("MutableCollectionMutableState", "MissingPermission")
 @Composable
-fun MapScreen(navController: NavController,myViewModel: MyViewModel){
+fun MapScreen(navController: NavController, myViewModel: MyViewModel) {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
-    var nuevaMarca by remember { mutableStateOf(LatLng(0.0,0.0)) }
-    val marcaActual: Marca by myViewModel.marcaActual.observeAsState(Marca("ITB",LatLng(41.4534265,2.1837151),"Inst Tecnologic de Bcn","Escuela",""))
-    var cameraPositionState= rememberCameraPositionState{position = CameraPosition.fromLatLngZoom(marcaActual.ubicacion,10f) }
+    var nuevaMarca by remember { mutableStateOf(LatLng(0.0, 0.0)) }
+    val marcaActual: Marca by myViewModel.marcaActual.observeAsState(
+        Marca(
+            "ITB",
+            LatLng(41.4534265, 2.1837151),
+            "Inst Tecnologic de Bcn",
+            "Escuela",
+            ""
+        )
+    )
+    var cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(marcaActual.ubicacion, 10f)
+    }
     var showBottomSheet by remember { mutableStateOf(false) }
-    val context= LocalContext.current
-    val fusedLocationProviderClient=remember{LocationServices.getFusedLocationProviderClient(context)}
-    var lastKnownLocation by remember{ mutableStateOf<Location?>(null)}
-    var deviceLatIng by remember { mutableStateOf(LatLng(0.0,0.0)) }
-    val locationResult=fusedLocationProviderClient.getCurrentLocation(100,null)
-    val inicioPantalla:Boolean by myViewModel.inicioPantall.observeAsState(true)
-    if (inicioPantalla){
-        locationResult.addOnCompleteListener(context as MainActivity){task->
-            if(task.isSuccessful){
-                lastKnownLocation=task.result
-                deviceLatIng= LatLng(lastKnownLocation!!.latitude,lastKnownLocation!!.longitude)
-                cameraPositionState.position= CameraPosition.fromLatLngZoom(deviceLatIng,15f)
+    val context = LocalContext.current
+    val fusedLocationProviderClient =
+        remember { LocationServices.getFusedLocationProviderClient(context) }
+    var lastKnownLocation by remember { mutableStateOf<Location?>(null) }
+    var deviceLatIng by remember { mutableStateOf(LatLng(0.0, 0.0)) }
+    val locationResult = fusedLocationProviderClient.getCurrentLocation(100, null)
+    val inicioPantalla: Boolean by myViewModel.inicioPantall.observeAsState(true)
+    if (inicioPantalla) {
+        locationResult.addOnCompleteListener(context as MainActivity) { task ->
+            if (task.isSuccessful) {
+                lastKnownLocation = task.result
+                deviceLatIng = LatLng(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(deviceLatIng, 15f)
                 myViewModel.inicio()
             }
         }
     }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-       GoogleMap(modifier = Modifier.fillMaxSize(),cameraPositionState=cameraPositionState,
-           onMapClick = {showBottomSheet=true;nuevaMarca=it},
-           properties = MapProperties(isBuildingEnabled = true, isMyLocationEnabled = true)
-       ){
-           Marker(state = MarkerState(position = marcaActual.ubicacion),
-               title = marcaActual.nombre,
-               snippet = "Marker at ${marcaActual.nombre}")
-       }
-        if (showBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = {
-                    showBottomSheet = false
-                },
-                sheetState = sheetState
+    ClickOutsideToDismissKeyboard {
+        Column(modifier = Modifier.fillMaxSize()) {
+            GoogleMap(
+                modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState,
+                onMapClick = { showBottomSheet = true;nuevaMarca = it },
+                properties = MapProperties(isBuildingEnabled = true, isMyLocationEnabled = true)
             ) {
-                var nombre by remember{ mutableStateOf("")}
-                var descripcion by remember{ mutableStateOf("")}
-                var tipo by remember { mutableStateOf("Marcador Comun") }
-                var id by remember { mutableStateOf("") }
-                Column(Modifier.fillMaxSize(),horizontalAlignment = Alignment.CenterHorizontally) {
-                    OutlinedTextField(
-                        value = nombre,
-                        onValueChange = { nombre = it },
-                        label = { Text("Name") },
-                        singleLine = true,
-                        placeholder = { Text(text = "New Ubication")}
-                    )
-                    Spacer(modifier = Modifier.height(30.dp))
-                    OutlinedTextField(
-                        value = descripcion,
-                        onValueChange = { descripcion = it },
-                        label = { Text("Description") },
-                        singleLine = true,
-                        placeholder = { Text(text = "New Ubication")}
-                    )
-                    Spacer(modifier = Modifier.height(30.dp))
-                    var listaTipos= listOf(Pair("Hospital",R.drawable.hospital),Pair("Hotel",R.drawable.hotel),Pair("Restaurante",
-                        R.drawable.restaurant),Pair("Escuela",R.drawable.university),Pair("Veterinario",R.drawable.veterinary))
-                    Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.SpaceEvenly){
-                        for (i in listaTipos){
-                            Image(painter = painterResource(i.second), contentDescription =i.first ,Modifier.size(50.dp)
-                                .clickable { tipo=i.first })
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(30.dp))
-                    Button(onClick = {
-                        id=UUID.randomUUID().toString()
-                        val marca= Marca(nombre,nuevaMarca,descripcion,tipo,id)
-                        marca.usuario=myViewModel._userId.value!!
-                        myViewModel.addTOList(marca)
-                        scope.launch { sheetState.hide() }.invokeOnCompletion {
-                            if (!sheetState.isVisible) {
-                                showBottomSheet = false
+                Marker(
+                    state = MarkerState(position = marcaActual.ubicacion),
+                    title = marcaActual.nombre,
+                    snippet = "Marker at ${marcaActual.nombre}"
+                )
+            }
+            if (showBottomSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = {
+                        showBottomSheet = false
+                    },
+                    sheetState = sheetState
+                ) {
+                    var nombre by remember { mutableStateOf("") }
+                    var descripcion by remember { mutableStateOf("") }
+                    var tipo by remember { mutableStateOf("Marcador Comun") }
+                    var id by remember { mutableStateOf("") }
+                    Column(
+                        Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        OutlinedTextField(
+                            value = nombre,
+                            onValueChange = { nombre = it },
+                            label = { Text("Name") },
+                            singleLine = true,
+                            placeholder = { Text(text = "New Ubication") }
+                        )
+                        Spacer(modifier = Modifier.height(30.dp))
+                        OutlinedTextField(
+                            value = descripcion,
+                            onValueChange = { descripcion = it },
+                            label = { Text("Description") },
+                            singleLine = true,
+                            placeholder = { Text(text = "New Ubication") }
+                        )
+                        Spacer(modifier = Modifier.height(30.dp))
+                        var listaTipos = listOf(
+                            Pair("Hospital", R.drawable.hospital),
+                            Pair("Hotel", R.drawable.hotel),
+                            Pair(
+                                "Restaurante",
+                                R.drawable.restaurant
+                            ),
+                            Pair("Escuela", R.drawable.university),
+                            Pair("Veterinario", R.drawable.veterinary)
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            for (i in listaTipos) {
+                                Image(painter = painterResource(i.second),
+                                    contentDescription = i.first,
+                                    Modifier
+                                        .size(50.dp)
+                                        .clickable { tipo = i.first })
                             }
                         }
-                        myViewModel.changeActual(Marca(nombre,nuevaMarca,descripcion,tipo,id))
-                    }) {
-                        Text("Add")
+                        Spacer(modifier = Modifier.height(30.dp))
+                        Button(onClick = {
+                            id = UUID.randomUUID().toString()
+                            val marca = Marca(nombre, nuevaMarca, descripcion, tipo, id)
+                            marca.usuario = myViewModel._userId.value!!
+                            myViewModel.addTOList(marca)
+                            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                if (!sheetState.isVisible) {
+                                    showBottomSheet = false
+                                }
+                            }
+                            myViewModel.changeActual(
+                                Marca(
+                                    nombre,
+                                    nuevaMarca,
+                                    descripcion,
+                                    tipo,
+                                    id
+                                )
+                            )
+                        }) {
+                            Text("Add")
+                        }
                     }
-                }
 
+                }
             }
         }
     }

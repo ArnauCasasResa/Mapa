@@ -187,6 +187,5 @@ fun bitmapToUri(context: Context, bitmap: Bitmap): Uri? {
         outstream?.let { bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it) }
         outstream?.close()
     }
-
     return uri
 }
