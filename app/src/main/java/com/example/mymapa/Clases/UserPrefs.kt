@@ -30,4 +30,10 @@ class UserPrefs(private val context:Context) {
             prefs[STORE_USERPASS] = userpass
         }
     }
+    suspend fun deleteUserData(){
+        context.dataStore.edit { prefs ->
+            prefs[STORE_USERNAME] = ""
+            prefs[STORE_USERPASS] = ""
+        }
+    }
 }

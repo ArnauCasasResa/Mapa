@@ -31,7 +31,7 @@ class MyViewModel:ViewModel() {
     val loading = _loading
     private val repository = Repository()
 
-    val _loggedIn = MutableLiveData<Boolean>()
+    val _loggedIn = MutableLiveData(false)
 
     var primeraVez = true
 
@@ -131,10 +131,15 @@ class MyViewModel:ViewModel() {
                     _userId.value= task.result.user?.uid
                     _loggedUser.value = task.result.user?.email?.split("@")?.get(0)
                     _goToNext.value=true
+                    _loggedIn.value=true
                 }else{
                     _goToNext.value=false
+                    _loggedIn.value=false
                 }
             }
+    }
+    fun deleteImage(image: String){
+        repository.deleteImage(image,_marcaActual.value!!)
     }
     fun logOut(){
         auth.signOut()

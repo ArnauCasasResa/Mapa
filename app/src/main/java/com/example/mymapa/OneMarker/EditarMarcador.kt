@@ -19,10 +19,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,12 +37,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mymapa.ClickOutsideToDismissKeyboard
 import com.example.mymapa.MyViewModel
 import com.example.mymapa.Routes
@@ -51,7 +59,6 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun EditarMarcador(navController: NavController, myViewModel: MyViewModel) {
-
     var expanded by remember { mutableStateOf(false) }
     val opciones =
         listOf("Marcador Comun", "Hospital", "Hotel", "Restaurant", "Escuela", "Veterinario")
@@ -134,7 +141,7 @@ fun EditarMarcador(navController: NavController, myViewModel: MyViewModel) {
                         ) {
                             LazyRow {
                                 items(marca.imagenes) {
-                                    CartaImagen(it, myViewModel)
+                                    CartaImagenEditable(it, myViewModel)
                                 }
                             }
                         }
@@ -173,3 +180,30 @@ fun EditarMarcador(navController: NavController, myViewModel: MyViewModel) {
 }
 
 
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun CartaImagenEditable(imageUrl: String,myViewModel: MyViewModel) {
+    Card(
+        border = BorderStroke(2.dp, Color.Transparent),
+        modifier = Modifier
+            .padding(8.dp)
+            .size(100.dp)
+            .clickable { myViewModel.deleteImage(imageUrl) })
+    {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            GlideImage(
+                model = imageUrl,
+                contentDescription = "Image from storage",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.alpha(0.9f) // Añade transparencia a la imagen
+            )
+            IconButton(
+                onClick = { myViewModel.deleteImage(imageUrl) },
+                modifier = Modifier.align(Alignment.Center) // Coloca el icono en el centro
+            ) {
+                Icon(imageVector = Icons.Default.Close, contentDescription = "Eliminar imagen", tint = Color.Black)
+            }
+        }
+    }
+
+}

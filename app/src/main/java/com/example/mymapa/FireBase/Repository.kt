@@ -13,29 +13,33 @@ import java.util.Date
 import java.util.Locale
 
 class Repository {
-    private val database=FirebaseFirestore.getInstance()
+    private val database = FirebaseFirestore.getInstance()
 
-    fun addMarker(marker: Marca){
+    fun addMarker(marker: Marca) {
         database.collection("markers")
-            .add(hashMapOf(
-                "id" to marker.id,
-                "nombre" to marker.nombre,
-                "ubicacion" to hashMapOf(
-                    "latitude" to marker.ubicacion.latitude,
-                    "longitude" to marker.ubicacion.longitude
-                ),
-                "descripcion" to marker.descripcion,
-                "tipo" to marker.tipo,
-                "imagenes" to marker.imagenes,
-                "usuario" to marker.usuario
-            ))
+            .add(
+                hashMapOf(
+                    "id" to marker.id,
+                    "nombre" to marker.nombre,
+                    "ubicacion" to hashMapOf(
+                        "latitude" to marker.ubicacion.latitude,
+                        "longitude" to marker.ubicacion.longitude
+                    ),
+                    "descripcion" to marker.descripcion,
+                    "tipo" to marker.tipo,
+                    "imagenes" to marker.imagenes,
+                    "usuario" to marker.usuario
+                )
+            )
     }
+
     fun getMarkersFromDataBase(): CollectionReference {
         return database.collection("markers")
     }
-    fun removeMarker(marker: Marca){
+
+    fun removeMarker(marker: Marca) {
         database.collection("markers")
-            .whereEqualTo("id",marker.id)
+            .whereEqualTo("id", marker.id)
             .get()
             .addOnSuccessListener { documents ->
                 for (document in documents) {
@@ -47,24 +51,27 @@ class Repository {
                 Log.w("Error", "Error getting documents: ", exception)
             }
     }
-    fun editMarker(marker: Marca){
+
+    fun editMarker(marker: Marca) {
         database.collection("markers")
-            .whereEqualTo("id",marker.id)
+            .whereEqualTo("id", marker.id)
             .get()
             .addOnSuccessListener { documents ->
                 for (document in documents) {
                     database.collection("markers").document(document.id)
-                        .update(hashMapOf(
-                            "id" to marker.id,
-                            "nombre" to marker.nombre,
-                            "ubicacion" to hashMapOf(
-                                "latitude" to marker.ubicacion.latitude,
-                                "longitude" to marker.ubicacion.longitude
-                            ),
-                            "descripcion" to marker.descripcion,
-                            "tipo" to marker.tipo,
-                            "imagenes" to marker.imagenes
-                        ))
+                        .update(
+                            hashMapOf(
+                                "id" to marker.id,
+                                "nombre" to marker.nombre,
+                                "ubicacion" to hashMapOf(
+                                    "latitude" to marker.ubicacion.latitude,
+                                    "longitude" to marker.ubicacion.longitude
+                                ),
+                                "descripcion" to marker.descripcion,
+                                "tipo" to marker.tipo,
+                                "imagenes" to marker.imagenes
+                            )
+                        )
                 }
             }
             .addOnFailureListener { exception ->
@@ -72,7 +79,17 @@ class Repository {
             }
     }
 
-    fun uploadImage(imageUri: Uri,marca: Marca) {
+    fun deleteImage(image: String, marca: Marca) {
+        val storage = FirebaseStorage.getInstance().getReferenceFromUrl(image)
+        storage.delete()
+            .addOnSuccessListener {
+                marca.imagenes.remove(image)
+                editMarker(marca)
+            }
+            .addOnFailureListener { Log.e("Image delete", "Image delete failed") }
+    }
+
+    fun uploadImage(imageUri: Uri, marca: Marca) {
         val formatter = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault())
         val now = Date()
         val fileName = formatter.format(now)
@@ -88,5 +105,4 @@ class Repository {
                     .addOnFailureListener { Log.e("Image upload", "Image upload failed") }
             }
     }
-
 }

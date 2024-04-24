@@ -1,6 +1,7 @@
 package com.example.mymapa.Register
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -57,15 +58,14 @@ fun SesioScreen(navController: NavHostController, myViewModel: MyViewModel) {
     val userPrefs = UserPrefs(context)
     val storedUserData = userPrefs.getUserData.collectAsState(initial = emptyList())
     var remember by remember { mutableStateOf(false) }
-    if (myViewModel.primeraVez) {
+
         if (storedUserData.value.isNotEmpty() && storedUserData.value[0] != "" && storedUserData.value[1] != "") {
-            storedUserData.value.let {
-                mail = it[0]
-                password = it[1]
-                myViewModel.primeraVez = false
+            myViewModel.login(storedUserData.value[0], storedUserData.value[1])
+            if (showError) {
+                myViewModel.log(true)
+
             }
         }
-    }
     ClickOutsideToDismissKeyboard {
         Column(
             Modifier.fillMaxSize(),
@@ -149,7 +149,9 @@ fun SesioScreen(navController: NavHostController, myViewModel: MyViewModel) {
                     Button(onClick = {
                         myViewModel.login(mail, password)
                         if (myViewModel._goToNext.value == true) {
+                            Log.e("PEpe","Aqui entra")
                             CoroutineScope(Dispatchers.IO).launch {
+                                Log.e("PEpe","Aqui entra tambien")
                                 if (remember) {
                                     userPrefs.saveUserData(mail, password)
                                 }
