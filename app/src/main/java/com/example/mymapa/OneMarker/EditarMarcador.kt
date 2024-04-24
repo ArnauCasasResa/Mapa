@@ -182,7 +182,7 @@ fun EditarMarcador(navController: NavController, myViewModel: MyViewModel) {
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun CartaImagenEditable(imageUrl: String,myViewModel: MyViewModel) {
+fun CartaImagenEditable(imageUrl: String, myViewModel: MyViewModel) {
     Card(
         border = BorderStroke(2.dp, Color.Transparent),
         modifier = Modifier
@@ -197,12 +197,13 @@ fun CartaImagenEditable(imageUrl: String,myViewModel: MyViewModel) {
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.alpha(0.9f) // Añade transparencia a la imagen
             )
-            IconButton(
-                onClick = { myViewModel.deleteImage(imageUrl) },
-                modifier = Modifier.align(Alignment.Center) // Coloca el icono en el centro
-            ) {
-                Icon(imageVector = Icons.Default.Close, contentDescription = "Eliminar imagen", tint = Color.Black)
-            }
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Eliminar imagen",
+                tint = Color.Black,
+                modifier = Modifier.align(Alignment.Center)
+            )
+
         }
     }
 
