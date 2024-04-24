@@ -61,7 +61,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 fun EditarMarcador(navController: NavController, myViewModel: MyViewModel) {
     var expanded by remember { mutableStateOf(false) }
     val opciones =
-        listOf("Marcador Comun", "Hospital", "Hotel", "Restaurant", "Escuela", "Veterinario")
+        listOf("Marcador Comun", "Hospital", "Hotel", "Restaurante", "Escuela", "Veterinario")
 
     val show: Boolean by myViewModel.showImage.observeAsState(false)
     val marca = myViewModel.marcaActual.value

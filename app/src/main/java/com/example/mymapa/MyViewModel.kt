@@ -39,9 +39,7 @@ class MyViewModel:ViewModel() {
         repository.addMarker(marca)
     }
     fun deleteTOList(marca: Marca){
-        val currentList=_listaMarcas.value.orEmpty().toMutableList()
-        currentList.remove(marca)
-        _listaMarcas.value=currentList
+
         repository.removeMarker(marca)
     }
     fun changeActual(marca: Marca){
